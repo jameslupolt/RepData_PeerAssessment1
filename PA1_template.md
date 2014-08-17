@@ -1,13 +1,9 @@
----
-output:
-  html_document:
-    keep_md: yes
----
 # Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 options(scipen=6)
 library(ggplot2)
 datafile <- "activity.zip"
@@ -33,16 +29,19 @@ if (!file.exists(datafile)) {
 
 Missing values (coded as NA) are excluded.
 
-```{r}
+
+```r
 steps_per_day <- tapply(stepdata$steps, stepdata$date, sum, na.rm=T)
 mean_steps_per_day <- mean(steps_per_day)
 median_steps_per_day <- median(steps_per_day)
 hist(steps_per_day,main="Steps Per Day",xlab="Steps", col="lightgreen")
 ```
 
-Mean steps per day:  **`r mean_steps_per_day`**
+![plot of chunk unnamed-chunk-2](./PA1_template_files/figure-html/unnamed-chunk-2.png) 
 
-Median steps per day:  **`r median_steps_per_day`** 
+Mean steps per day:  **9354.2295**
+
+Median steps per day:  **10395** 
 
 ## What is the average daily activity pattern?
 
@@ -54,7 +53,8 @@ Median steps per day:  **`r median_steps_per_day`**
 
 Again, missing (NA) values are excluded.
 
-```{r}
+
+```r
 # Build new dataframe to avoid "arguments imply differing number of rows" error from recent versions of ggplot2 
 df <- data.frame(unique_intervals=unique(stepdata$interval), steps_per_interval = tapply(stepdata$steps, stepdata$interval, mean, na.rm=T))
 ggplot(data=df, aes(x=unique_intervals, y=steps_per_interval)) +
@@ -65,7 +65,9 @@ ggplot(data=df, aes(x=unique_intervals, y=steps_per_interval)) +
     ylab("Mean Steps")
 ```
 
-5-minute interval with highest average steps is:  **`r names(which.max(df$steps_per_interval))`** 
+![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
+
+5-minute interval with highest average steps is:  **835** 
 
 ## Imputing missing values
 
@@ -79,9 +81,10 @@ ggplot(data=df, aes(x=unique_intervals, y=steps_per_interval)) +
 
 4) Compare with the data from earlier analyses that ignored missing values.
 
-The total number of missing values in the dataset is **`r sum(is.na(stepdata$steps))`**
+The total number of missing values in the dataset is **2304**
 
-```{r}
+
+```r
 stepdata_cleaned <- stepdata
 missing_vals <- is.na(stepdata$steps)
 steps_per_interval <- tapply(stepdata$steps, stepdata$interval, mean, na.rm=T)
@@ -93,9 +96,11 @@ median_steps_per_day_cleaned <- median(steps_per_day_cleaned)
 hist(steps_per_day_cleaned,main="Steps Per Day (cleaned with mean imputation)",xlab="Steps", col="lightgreen")
 ```
 
-Mean steps per day (with mean imputation):  **`r mean_steps_per_day_cleaned`**
+![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
 
-Median steps per day (with mean imputation):  **`r median_steps_per_day_cleaned`** 
+Mean steps per day (with mean imputation):  **10765.6393**
+
+Median steps per day (with mean imputation):  **10762** 
 
 Using mean imputation is questionable, but this shows that it increases the step count on average somewhat. For very late and early intervals, it reduced the step count.
 
@@ -103,7 +108,8 @@ Using mean imputation is questionable, but this shows that it increases the step
 
 To answer this question, we tag each date as a weekday or weekend day in the cleansed dataset and then plot.
 
-```{r}
+
+```r
 stepdata_cleaned$daycategory <- as.POSIXlt(stepdata_cleaned$date,format="%Y-%m-%d")$wday
 stepdata_cleaned$daycategory[stepdata_cleaned$daycategory == 0] <- "weekend"
 stepdata_cleaned$daycategory[stepdata_cleaned$daycategory == 1] <- "weekday"
@@ -125,5 +131,7 @@ lines(x = unique(stepdata_cleaned$interval), y = steps_per_interval_weekday, typ
 plot(x <- unique(stepdata_cleaned$interval), y <- steps_per_interval_weekend, type= "l", xlab = "5-min Interval", ylab = "Steps, Weekends", ylim=c(0,225))
 lines(x = unique(stepdata_cleaned$interval), y = steps_per_interval_weekend, type = "l")
 ```
+
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
 
 Weekdays show a bigger spike in the morning and less sustained walking activity throughout the day. Weekends show a smaller morning spike but more sustained activity throughout the day, with a later dropoff than during the week.
